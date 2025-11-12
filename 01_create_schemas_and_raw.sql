@@ -1,3 +1,5 @@
+USE DATABASE DE_2;
+
 -- 01_create_schemas_and_raw.sql
 -- Create schemas for the pipeline
 CREATE SCHEMA IF NOT EXISTS RAW;
