@@ -1,0 +1,15 @@
+-- 01_create_schemas_and_raw.sql
+-- Create schemas for the pipeline
+CREATE SCHEMA IF NOT EXISTS RAW;
+CREATE SCHEMA IF NOT EXISTS STG;
+CREATE SCHEMA IF NOT EXISTS DW;
+
+-- Create raw table to store JSON payloads
+CREATE OR REPLACE TABLE RAW.WEATHER_JSON (
+    LOCATION_NAME STRING,
+    LOAD_TS TIMESTAMP_NTZ,
+    PAYLOAD VARIANT
+);
+
+-- Check tables
+SHOW TABLES IN SCHEMA RAW;
