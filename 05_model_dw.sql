@@ -1,5 +1,5 @@
-use database de_2;
-use schema DW; 
+USE DATABASE DE_2;
+USE SCHEMA DW;
 
 -- 05_model_dw.sql
 CREATE OR REPLACE PROCEDURE DW.TRANSFORM_FCT_WEATHER()
