@@ -1,6 +1,6 @@
 USE DATABASE DE_2;
 
--- 03_test_and_ingest.sql
+-- 04_test_and_ingest.sql
 -- Call the stored procedure to fetch data
 CALL RAW.LOAD_WEATHER();
 
