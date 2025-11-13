@@ -1,3 +1,4 @@
+USE DATABASE DE_2;
 USE SCHEMA STG;
 
 -- 03_transform_staging.sql
