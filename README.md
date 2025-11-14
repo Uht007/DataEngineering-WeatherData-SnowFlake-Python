@@ -1,5 +1,5 @@
 # PARX-DataEngineer-WeatherData
-Weather Data Assessment for PARX Data Engineer 
+Weather Data Assessment for PARX Data Engineer position.  
 Fetches historical hourly weather data from the Open-Meteo API, loads it into Snowflake, and models it for analytics.
 
 Pipeline Flow
