@@ -10,12 +10,13 @@ Setup
 - Login to Snowflake Web UI.
 - Select warehouse (COMPUTE_WH) and Database (DE_2).
 - Run SQL worksheets in order:
-- 01_create_schemas_and_raw.sql - Run once to create Schemas                         
-- 02_create_python_proc.sql - Run once to create Python API procedure                        
-- 03_transform_staging.sql - Run once to create Staging procedure after API  
-- 04_test_and_ingest.sql - Run on-demand
-- 05_model_dw.sql - Run once to create DW procedure after Staging 
-- 06_create_task_and_quality.sql - Run once to configure automation
+- 01_create_schemas_and_raw.sql - Run once to create Schemas
+- 02_create_network_rule_access.sql - Run Once to create network rule and allow external access to Open-metro API                         
+- 03_create_python_proc.sql - Run once to create Python API procedure                        
+- 04_transform_staging.sql - Run once to create Staging procedure after API  
+- 05_test_and_ingest.sql - Run on-demand
+- 06_model_dw.sql - Run once to create DW procedure after Staging 
+- 07_create_task_and_quality.sql - Run once to configure automation
 
  
   # Notes
