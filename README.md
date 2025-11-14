@@ -17,12 +17,6 @@ Setup
 - 05_model_dw.sql - Run once to create DW procedure after Staging 
 - 06_create_task_and_quality.sql - Run once to configure automation
 
-Verify data with:
-- SELECT * FROM RAW.WEATHER_JSON LIMIT 10;
-- SELECT * FROM STG.WEATHER_HOURLY LIMIT 10;
-- SELECT * FROM DW.FCT_WEATHER LIMIT 10;
-
- 
  
   # Notes
 
