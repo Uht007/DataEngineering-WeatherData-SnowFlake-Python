@@ -1,5 +1,5 @@
 USE DATABASE DE_2;
-USE SCHEMA DW;
+USE SCHEMA DW; 
 
 -- 06_model_dw.sql
 CREATE OR REPLACE PROCEDURE DW.TRANSFORM_FCT_WEATHER()
@@ -32,7 +32,8 @@ BEGIN
             AVG(TEMPERATURE) AS AVG_TEMPERATURE,
             SUM(PRECIPITATION) AS TOTAL_PRECIPITATION
         FROM STG.WEATHER_HOURLY
-        WHERE LOAD_TS = ''' || latest_load_ts || ''' 
+        WHERE LOAD_TS BETWEEN TIMESTAMPADD(''second'', -1, TO_TIMESTAMP_NTZ(''' || latest_load_ts || ''')) 
+                          AND TIMESTAMPADD(''second'', 1, TO_TIMESTAMP_NTZ(''' || latest_load_ts || ''')) 
         GROUP BY 1,2';
 
     -- Merge into DW fact table
