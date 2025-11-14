@@ -29,7 +29,8 @@ BEGIN
              LATERAL FLATTEN(input => r.PAYLOAD:hourly:precipitation) precipitation
         WHERE time.index = temperature.index
           AND temperature.index = precipitation.index
-          AND r.LOAD_TS = ''' || latest_load_ts || '''';
+          AND r.LOAD_TS BETWEEN TIMESTAMPADD(''second'', -1, TO_TIMESTAMP_NTZ(''' || latest_load_ts || ''')) 
+                            AND TIMESTAMPADD(''second'', 1, TO_TIMESTAMP_NTZ(''' || latest_load_ts || '''))';
     
     -- Merge incremental results
     MERGE INTO STG.WEATHER_HOURLY t
