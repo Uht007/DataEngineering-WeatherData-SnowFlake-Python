@@ -8,7 +8,7 @@ Pipeline Flow
 Setup
 
 - Login to Snowflake Web UI.
-- Select your warehouse and Database.
+- Select warehouse (COMPUTE_WH) and Database (DE_2).
 - Run SQL worksheets in order:
 - 01_create_schemas_and_raw.sql - Run once to create Schemas                         
 - 02_create_python_proc.sql - Run once to create Python API procedure                        
