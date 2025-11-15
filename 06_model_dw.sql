@@ -8,7 +8,7 @@ LANGUAGE SQL
 AS
 $$
 DECLARE
-    latest_load_ts TIMESTAMP;
+    last_dw_load_ts TIMESTAMP;
 BEGIN
     -- Ensure DW table exists
     EXECUTE IMMEDIATE '
@@ -19,11 +19,11 @@ BEGIN
             TOTAL_PRECIPITATION FLOAT
         )';
 
-    -- Get latest load timestamp from staging
-    SELECT MAX(LOAD_TS) INTO latest_load_ts
-    FROM STG.WEATHER_HOURLY;
+    -- Get last LOAD_TS already processed into DW
+    SELECT MAX(HOUR) INTO last_dw_load_ts
+    FROM DW.FCT_WEATHER;
 
-    -- Aggregate only the latest load into temp table
+    -- Aggregate ONLY new STG rows into a temp table
     EXECUTE IMMEDIATE '
         CREATE OR REPLACE TEMPORARY TABLE FCT_WEATHER_TMP AS
         SELECT
@@ -32,9 +32,13 @@ BEGIN
             AVG(TEMPERATURE) AS AVG_TEMPERATURE,
             SUM(PRECIPITATION) AS TOTAL_PRECIPITATION
         FROM STG.WEATHER_HOURLY
-        WHERE LOAD_TS BETWEEN TIMESTAMPADD(''second'', -1, TO_TIMESTAMP_NTZ(''' || latest_load_ts || ''')) 
-                          AND TIMESTAMPADD(''second'', 1, TO_TIMESTAMP_NTZ(''' || latest_load_ts || ''')) 
-        GROUP BY 1,2';
+        ' || CASE
+                WHEN last_dw_load_ts IS NULL
+                THEN ''  -- first load, process all staging data
+                ELSE 'WHERE TIME > TO_TIMESTAMP_NTZ(''' || last_dw_load_ts || ''')'
+            END || '
+        GROUP BY 1,2
+    ';
 
     -- Merge into DW fact table
     MERGE INTO DW.FCT_WEATHER t
@@ -49,6 +53,6 @@ BEGIN
         VALUES (s.LOCATION_NAME, s.HOUR, s.AVG_TEMPERATURE, s.TOTAL_PRECIPITATION);
 
     -- Return confirmation message
-    RETURN 'DW fact table updated for LOAD_TS: ' || latest_load_ts;
+    RETURN 'DW fact table updated incrementally after: ' || COALESCE(last_dw_load_ts::string, 'FIRST RUN');
 END;
 $$;
