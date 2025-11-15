@@ -42,7 +42,7 @@ def main(session: snowpark.Session):
         """
 
         result = session.sql(query).collect()
-        last_loaded_hour = result[0][0]  # may be None on first load
+        last_loaded_hour = result[0][0]
 
 
         # DETERMINE START TIMESTAMP BASED ON LAST LOADED HOUR
@@ -92,7 +92,7 @@ def main(session: snowpark.Session):
             """, (loc["name"], batch_load_ts, json.dumps({"error": str(e)}))).collect()
             skipped += 1
 
-    # 5. Run STG transform AFTER inserting
+    #  Run STG transform AFTER inserting
     session.sql("CALL STG.TRANSFORM_WEATHER();").collect()
 
     return f"Inserted {inserted} locations, skipped {skipped}, batch_load_ts={batch_load_ts}"
