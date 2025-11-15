@@ -8,30 +8,34 @@ LANGUAGE SQL
 AS
 $$
 DECLARE
-    latest_load_ts TIMESTAMP;
+    last_stg_load_ts TIMESTAMP;
 BEGIN
-    -- Get the most recent load timestamp
-    SELECT MAX(LOAD_TS) INTO latest_load_ts
-    FROM RAW.WEATHER_JSON;
+    -- Get the most recent load timestamp already processed into STG
+    SELECT MAX(LOAD_TS) INTO last_stg_load_ts
+    FROM STG.WEATHER_HOURLY;
 
-    -- Flatten the most recent load into a temp table using dynamic SQL
+    -- Flatten only NEW RAW rows into temp table (incremental)
     EXECUTE IMMEDIATE '
         CREATE OR REPLACE TEMPORARY TABLE STG.WEATHER_HOURLY_TMP AS
         SELECT
-            LOCATION_NAME,
+            r.LOCATION_NAME,
             TO_TIMESTAMP_NTZ(time.value::string) AS TIME,
             temperature.value::FLOAT AS TEMPERATURE,
             precipitation.value::FLOAT AS PRECIPITATION,
-            LOAD_TS
+            r.LOAD_TS
         FROM RAW.WEATHER_JSON r,
              LATERAL FLATTEN(input => r.PAYLOAD:hourly:time) time,
              LATERAL FLATTEN(input => r.PAYLOAD:hourly:temperature_2m) temperature,
              LATERAL FLATTEN(input => r.PAYLOAD:hourly:precipitation) precipitation
         WHERE time.index = temperature.index
           AND temperature.index = precipitation.index
-          AND r.LOAD_TS BETWEEN TIMESTAMPADD(''second'', -1, TO_TIMESTAMP_NTZ(''' || latest_load_ts || ''')) 
-                            AND TIMESTAMPADD(''second'', 1, TO_TIMESTAMP_NTZ(''' || latest_load_ts || '''))';
-    
+          ' || CASE 
+                WHEN last_stg_load_ts IS NULL
+                THEN ''      -- First ever run → load everything
+                ELSE 'AND r.LOAD_TS > TO_TIMESTAMP_NTZ(''' || last_stg_load_ts || ''')'
+              END || '
+    ';
+
     -- Merge incremental results
     MERGE INTO STG.WEATHER_HOURLY t
     USING STG.WEATHER_HOURLY_TMP s
@@ -45,6 +49,6 @@ BEGIN
         INSERT (LOCATION_NAME, TIME, TEMPERATURE, PRECIPITATION, LOAD_TS)
         VALUES (s.LOCATION_NAME, s.TIME, s.TEMPERATURE, s.PRECIPITATION, s.LOAD_TS);
 
-    RETURN 'Transform complete for load timestamp: ' || latest_load_ts;
+    RETURN 'Transform complete. Loaded increment after: ' || COALESCE(last_stg_load_ts::string, 'FIRST RUN');
 END;
 $$;
