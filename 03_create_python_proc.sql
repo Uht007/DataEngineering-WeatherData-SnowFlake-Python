@@ -28,7 +28,8 @@ def main(session: snowpark.Session):
     skipped = 0
 
     today = date.today()
-    batch_load_ts = datetime.now()
+    now_ts = datetime.now()
+    batch_load_ts = now_ts   # used for this entire batch
 
     for loc in locations:
 
@@ -41,24 +42,23 @@ def main(session: snowpark.Session):
         """
 
         result = session.sql(query).collect()
-        last_loaded_hour = result[0][0]
+        last_loaded_hour = result[0][0]  # may be None on first load
 
 
-        # DETERMINE START DATE BASED LAST HOUR LOADED
+        # DETERMINE START TIMESTAMP BASED ON LAST LOADED HOUR
         if last_loaded_hour is None:
-            # If no data, load 2 days back
-            start_date = today - timedelta(days=2)
+            # If no data, load 2 days back (full capture)
+            start_ts = now_ts - timedelta(days=2)
         else:
-            # Next missing hour
-            next_hour = last_loaded_hour + timedelta(hours=1)
-            start_date = next_hour.date()
+            # Load from the very next missing hour
+            start_ts = last_loaded_hour + timedelta(hours=1)
 
-        # If start date is today or later, nothing new available yet
-        if start_date >= today:
+        # SAFETY: Do not load future hours
+        if start_ts >= now_ts:
             skipped += 1
             continue
 
-        start_date_str = start_date.isoformat()
+        start_date_str = start_ts.date().isoformat()
         end_date_str = today.isoformat()
 
 
