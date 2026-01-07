@@ -8,7 +8,7 @@ Pipeline Flow
 Setup
 
 - Login to Snowflake Web UI.
-- Select Warehouse and Database.
+- Create/Select Warehouse (COMPUTE_WH) and Database (DE_2).
 - Run SQL worksheets in order:
 - 01_create_schemas_and_raw.sql - Run once to create Schemas
 - 02_create_network_rule_access.sql - Run Once to create network rule and allow external access to Open-metro API                         
