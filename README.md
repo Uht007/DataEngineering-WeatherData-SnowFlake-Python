@@ -1,5 +1,5 @@
-# PARX-DataEngineer-WeatherData
-Weather Data Assessment for PARX Data Engineer position.  
+# DataEngineer-SnowFlake-WeatherData
+Weather Data Project for Data Engineering using Python and SnowFlake.  
 Fetches historical hourly weather data from the Open-Meteo API, loads it into Snowflake, and models it for analytics.
 
 Pipeline Flow
@@ -8,7 +8,7 @@ Pipeline Flow
 Setup
 
 - Login to Snowflake Web UI.
-- Select warehouse (COMPUTE_WH) and Database (DE_2).
+- Select Warehouse and Database.
 - Run SQL worksheets in order:
 - 01_create_schemas_and_raw.sql - Run once to create Schemas
 - 02_create_network_rule_access.sql - Run Once to create network rule and allow external access to Open-metro API                         
